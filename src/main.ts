@@ -28,6 +28,7 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
+    .addTag('auth', 'Auth endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
