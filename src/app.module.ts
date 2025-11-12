@@ -8,6 +8,7 @@ import {
 import * as winston from 'winston';
 import { colorize } from 'json-colorizer';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -41,6 +42,17 @@ import { ConfigModule } from '@nestjs/config';
       ],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5400'),
+      username: process.env.DB_USER || 'user',
+      password: process.env.DB_PASSWORD || 'password',
+      database: process.env.DB_DATABASE || 'db',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: false,
+      logging: process.env.NODE_ENV === 'development',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

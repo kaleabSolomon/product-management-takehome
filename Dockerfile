@@ -16,4 +16,5 @@ ENV NODE_ENV=development
 
 EXPOSE 3000
 
-CMD ["pnpm", "start:dev"]
+
+CMD ["sh", "-c", "pnpm migration:run && pnpm start:dev"]
