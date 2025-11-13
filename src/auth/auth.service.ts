@@ -42,7 +42,13 @@ export class AuthService {
       lastName,
       password: passwordHash,
     });
-    const savedUser = await this.userRepository.save(newUser);
+    let savedUser: User;
+    try {
+      savedUser = await this.userRepository.save(newUser);
+    } catch (error) {
+      this.logger.error('Failed to save new user', { email, error });
+      throw new InternalServerErrorException('Failed to create user');
+    }
 
     if (!savedUser) {
       this.logger.error('Failed to create user', { email });
