@@ -3,9 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
+import { Order } from '../../order/entities/order.entity';
 @Entity()
 export class User {
   @ApiProperty({
@@ -45,4 +47,7 @@ export class User {
   })
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
