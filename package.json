@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prepare": "husky",
     "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
-    "migration:generate": "pnpm typeorm migration:generate src/migrations/$(date +%s)-AutoMigration",
+    "migration:generate": "pnpm typeorm migration:generate src/migrations/AutoMigration-$(date +%s) && prettier --write 'src/migrations/*.ts'",
     "migration:run": "pnpm typeorm migration:run",
     "migration:revert": "pnpm typeorm migration:revert"
   },

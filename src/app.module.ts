@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AtGuard } from './auth/guards';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
     }),
     AuthModule,
     UserModule,
+    ProductModule,
   ],
   controllers: [],
   providers: [
