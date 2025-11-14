@@ -30,8 +30,8 @@ async function bootstrap() {
     )
     .addTag('auth', 'Auth endpoints')
     .addTag('user', 'User endpoints')
-    .addTag('product', 'Product endpoints')
-    .addTag('order', 'Order endpoints')
+    .addTag('products', 'Product endpoints')
+    .addTag('orders', 'Order endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
