@@ -125,7 +125,7 @@ export class OrderService {
       response = await this.chapa.initialize({
         first_name: user.firstName,
         last_name: user.lastName,
-        email: 'kaleabslmn@gmail.com',
+        email: user.email,
         currency: 'ETB',
         amount: totalPrice.toString(),
         tx_ref: txRef,

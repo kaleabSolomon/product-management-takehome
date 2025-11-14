@@ -1,85 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Product Management API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS/TypeScript backend for a lightweight marketplace. It covers user onboarding, product management, checkout initiation with Chapa, and the full order lifecycle.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Overview
 
-## Description
+- **Auth & Users** – JWT-based auth with profile/password management.
+- **Products** – Owners create/update/delete inventory, while the public can read active listings and stock status.
+- **Orders** – Buyers place orders, obtain a Chapa checkout URL, and webhook verification finalizes stock movement; product owners can review/update status.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Architecture Highlights
 
-## Project setup
+- Modules: `auth`, `user`, `product`, `order`, each with DTOs, services, controllers.
+- TypeORM/Postgres with soft deletion (status flags) and migrations under `src/migrations`.
 
-```bash
-$ pnpm install
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm 9+
+- Docker
+
+### Environment Variables
+
+Create `.env` in the repo root (sample values shown):
+
+```
+PORT=3000
+NODE_ENV=development
+
+DB_HOST=localhost
+DB_PORT=5400
+DB_USER=user
+DB_PASSWORD=password
+DB_DATABASE=db
+
+AT_SECRET=super-secret-jwt-key
+AT_EXPIRESIN=15m
+
+CHAPA_TEST_SECRET_KEY=your-chapa-test-key
+CHAPA_WEBHOOK_SECRET=your-webhook-secret
+CALLBACK_URL=https://your-domain.com
 ```
 
-## Compile and run the project
+> When using Docker Compose the DB\_\* values already match the bundled Postgres service.
+
+### Local Installation & Run
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
+pnpm migration:run      # applies TypeORM migrations (requires Postgres up)
+pnpm start:dev          # watch mode on http://localhost:3000
 ```
 
-## Run tests
+Swagger UI lives at `http://localhost:${PORT}/api`.
+
+### Docker Compose (Recommended)
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker compose up --build
 ```
 
-## Resources
+or you can use the start script
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+./start_dev.sh
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Services:
 
-## Support
+- `db` – Postgres 15 exposed on `localhost:5400`
+- `app` – NestJS server on `localhost:3000`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Webhook Tunneling (zrok/ngrok/etc.)
 
-## Stay in touch
+`POST /orders/verify` must be reachable from Chapa’s servers. For local development you’ll need to expose your machine through a tunneling service (ngrok, Cloudflare Tunnel, etc.). I used [zrok](https://zrok.io) to stand up a secure OpenZiti-powered tunnel—after running `zrok invite` ➝ `zrok enable` ➝ `zrok share http 3000`, it returns a public URL you can drop into `CALLBACK_URL` and your Chapa dashboard so webhooks reach the local server.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Chapa Email Requirement
 
-## License
+Chapa blocks obviously fake emails (e.g., `user@example.com`) during checkout initialization. When testing locally, sign up with a real mailbox you control or use a forwarding alias so payment attempts aren’t rejected.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Short API Guide
+
+| Module  | Method & Path                   | Notes                                                |
+| ------- | ------------------------------- | ---------------------------------------------------- |
+| Auth    | `POST /auth/signup`             | Public registration, returns JWT                     |
+| Auth    | `POST /auth/signin`             | Public login, returns JWT                            |
+| User    | `GET /user/me`                  | Fetch current profile                                |
+| User    | `PATCH /user/me`                | Update profile fields                                |
+| User    | `PATCH /user/me/password`       | Rotate password (requires current password)          |
+| Product | `POST /product`                 | Create product (owner = caller)                      |
+| Product | `PUT /products/adjust`          | Update price/stock/status (blocks setting `DELETED`) |
+| Product | `GET /products`                 | Authenticated list (non-deleted)                     |
+| Product | `GET /products/me`              | Caller’s products                                    |
+| Product | `GET /products/:productId`      | Public view for active & in-stock items              |
+| Product | `GET /status/:productId`        | Public availability snapshot                         |
+| Product | `DELETE /products/:productId`   | Soft delete (owner only)                             |
+| Order   | `POST /orders`                  | Create order & receive Chapa checkout URL            |
+| Order   | `POST /orders/verify`           | Webhook endpoint validating `x-chapa-signature`      |
+| Order   | `GET /orders/me`                | Buyer’s orders (`status` query supported)            |
+| Order   | `GET /orders/my-products`       | Orders for caller’s products                         |
+| Order   | `GET /orders/:orderId`          | Buyer or product owner can view                      |
+| Order   | `PATCH /orders/:orderId/status` | Product owner updates status & stock                 |
+
+All authenticated routes expect `Authorization: Bearer <token>`. DTO validation + schema metadata are visible in Swagger.
+
+## Assumptions & Trade-offs
+
+- **JWT-only session model** – Single short-lived access token (`AT_EXPIRESIN`); refresh tokens omitted for brevity.
+- **Payment lifecycle** – Orders flip to `successful` only after Chapa verification; failures default to `failed` without automated retries/refunds.
+- **Inventory consistency** – Stock is checked before order creation and again during verification; no optimistic locking, but verification revalidates quantity before decrementing.
+- **Soft deletion** – Products move to `DELETED` instead of being removed, ensuring historical orders remain intact.
+- **Filtering** – Order listings filter primarily by status; additional filters can be layered onto the existing query builders.
+
+---
